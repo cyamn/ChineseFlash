@@ -1,0 +1,125 @@
+<html>
+  <head>
+    <title>Learn Chinese</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+
+      body {
+        background-color: black;
+      }
+      .card {
+        background-color: black;
+        color: white;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-family: "Montserrat", sans-serif;
+        font-size: 24px;
+      }
+      .card-title {
+        font-size: 48px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="flashcard" class="card text-center">
+        <div class="card-body">
+          <div id="clock">123123</div>
+          <div class="card-title" id="frontsideSimplified"></div>
+          <p class="card-text" id="frontsidePinyin"></p>
+          <p class="card-text" id="backside"></p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var revealed = false;
+      document.getElementById("backside").style.visibility = "hidden";
+      // Parse the CSV file and create an array of flashcards
+      Papa.parse("flashcards.csv", {
+        download: true,
+        header: true,
+        complete: function (results) {
+          var flashcards = results.data;
+          console.log("Parsed CSV file:", flashcards);
+          // Shuffle the array of flashcards
+          shuffle(flashcards);
+
+          // Display the first flashcard
+          displayFlashcard(flashcards[0]);
+
+          function handleClick() {
+            if (!revealed) {
+              document.getElementById("backside").style.visibility = "visible";
+              revealed = true;
+            } else {
+              document.getElementById("backside").style.visibility = "hidden";
+              revealed = false;
+              // Select a random flashcard and display it
+              var randomIndex = Math.floor(Math.random() * flashcards.length);
+              displayFlashcard(flashcards[randomIndex]);
+            }
+          }
+
+          // Add a click event listener to the flashcard
+          document
+            .getElementById("flashcard")
+            .addEventListener("click", function () {
+              handleClick();
+            });
+          // add a keydown event listener to the document
+          document.addEventListener("keydown", function (event) {
+            // check if the space key was pressed
+            if (event.code === "Space") {
+              handleClick();
+            }
+          });
+        },
+      });
+
+      // Function to display a flashcard
+      function displayFlashcard(flashcard) {
+        document.getElementById("frontsideSimplified").textContent =
+          flashcard.Simplified;
+        document.getElementById("frontsidePinyin").textContent =
+          flashcard.Pinyin;
+        document.getElementById("backside").textContent = flashcard.Meaning;
+      }
+
+      // Function to shuffle an array
+      function shuffle(array) {
+        var currentIndex = array.length,
+          temporaryValue,
+          randomIndex;
+        while (0 !== currentIndex) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+        return array;
+      }
+
+      // select the clock container element
+      const clock = document.querySelector("#clock");
+
+      // update the clock with the current time
+      function updateClock() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, "0");
+        const minutes = now.getMinutes().toString().padStart(2, "0");
+        clock.textContent = `${hours}:${minutes}`;
+      }
+
+      // update the clock every second
+      setInterval(updateClock, 100);
+    </script>
+  </body>
+</html>
